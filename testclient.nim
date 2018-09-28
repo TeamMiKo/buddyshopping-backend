@@ -1,8 +1,11 @@
 import websocket, asyncnet, asyncdispatch, os, strutils, json
 
-let id = parseInt(paramStr(1))
+let 
+  id = parseInt(paramStr(2))
+  host = paramStr(1).split(':')[0]
+  port = Port parseInt(paramStr(1).split(':')[1])
 
-let ws = waitFor newAsyncWebsocketClient("localhost", Port(8080),
+let ws = waitFor newAsyncWebsocketClient(host, port,
   path = "/" & $id, protocols = @["multicart"])
 
 proc ping() {.async.} =

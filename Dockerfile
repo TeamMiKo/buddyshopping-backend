@@ -1,2 +1,3 @@
 FROM nimlang/nim:onbuild
-ENTRYPOINT ["./multicart_backend"]
+EXPOSE 8080
+CMD ["./multicart_backend"]
