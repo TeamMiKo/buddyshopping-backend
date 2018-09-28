@@ -10,12 +10,15 @@ type
   State = Table[int, Cart]
 
 proc newCart(): Cart =
-  result.content = newJObject()
+  result.content = newJArray()
   result.clients = @[]
 
 proc newState(): State = initTable[int, Cart]()
 
-proc updateContent(cart: var Cart, newContent: JsonNode) = cart.content = newContent
+proc updateContent(cart: var Cart, newContent: JsonNode) =
+  for item in newContent:
+    if item notin cart.content:
+      cart.content.add item
 
 proc addClient(cart: var Cart, newClient: AsyncWebSocket) =
   cart.clients = deduplicate(cart.clients & newClient)
@@ -54,11 +57,11 @@ proc main() =
         break
 
       of Opcode.Text:
-        let payload = parseJson(data)
+        let newCartContent = parseJson(data)["items"][0]["items"]
 
         var cart = state.mgetOrPut(id, newCart())
 
-        cart.updateContent(payload)
+        cart.updateContent(newCartContent)
         cart.addClient(ws)
         cart.removeDisconnectedClients()
 
