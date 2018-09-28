@@ -1,16 +1,15 @@
 import websocket, asyncnet, asyncdispatch, os, strutils, json
 
-let 
-  id = parseInt(paramStr(2))
+let
   host = paramStr(1).split(':')[0]
   port = Port parseInt(paramStr(1).split(':')[1])
+  id = parseInt(paramStr(2))
+  data = parseFile paramStr(3)
 
 let ws = waitFor newAsyncWebsocketClient(host, port,
   path = "/" & $id, protocols = @["multicart"])
 
 proc ping() {.async.} =
-  let data = %*{"id": id}
-
   while true:
     await sleepAsync(1000)
     await ws.sendText $data
@@ -18,7 +17,7 @@ proc ping() {.async.} =
 proc read() {.async.} =
   while true:
     let (opcode, data) = await ws.readData()
-    echo "(opcode: ", opcode, ", data: ", data, ")"
+    echo "(opcode: ", opcode, ", data length: ", parseJson(data).len, ")"
 
 asyncCheck read()
 asyncCheck ping()
