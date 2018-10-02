@@ -1,3 +1,5 @@
-FROM nimlang/nim:onbuild
-EXPOSE 8080
-CMD ["./multicart_backend"]
+FROM nimlang/nim:latest-alpine-onbuild as base
+
+FROM alpine
+COPY --from=base /usr/src/app/multicart_backend /bin/multicart_backend
+CMD ["/bin/multicart_backend"]
