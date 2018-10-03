@@ -62,8 +62,6 @@ proc cleanup(state: var State) =
 
 
 proc main() =
-  const protocol = getEnv("MC_PROTOCOL", "secret")
-
   var state = newState()
 
   echo "Server is ready"
@@ -72,7 +70,7 @@ proc main() =
     try:
       let
         sessionId = request.url.path.strip(chars={'/'})
-        (ws, error) = await verifyWebsocketRequest(request, protocol)
+        (ws, error) = await verifyWebsocketRequest(request, "86aa6d449d3de20132e08d77b909547d")
 
       if ws.isNil:
         await request.respond(Http400, error)

@@ -2,8 +2,5 @@
   "features": {
     "cloud": "v2"
   },
-  "alias": "multicartbackend",
-  "env": {
-    "MC_PROTOCOL": "@mc_protocol"
-  }
+  "alias": "multicartbackend"
 }
