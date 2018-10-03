@@ -4,7 +4,6 @@
   "event": "customerReadyToCheckout",
   "payload": {
     "customerId": "$customerId",
-    "customerReadyToCheckout": "$customerReadyToCheckout"
-    }
+    "customerReadyToCheckout": $customerReadyToCheckout
   }
 }

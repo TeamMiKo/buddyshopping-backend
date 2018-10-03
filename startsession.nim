@@ -6,9 +6,12 @@ let
   port = Port parseInt(paramStr(1).split(':')[1])
   sessionId = paramStr(2)
 
-let ws = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @["secret"])
+let ws = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId,
+                                          protocols = @["86aa6d449d3de20132e08d77b909547d"])
 
-var customerId: string
+var
+  customerId: string
+  isReadyToCheckout: bool
 
 
 proc startSession() {.async.} =
@@ -19,7 +22,7 @@ proc updateCart() {.async.} =
   while true:
     await sleepAsync(5000)
     if len(customerId) > 0:
-      let data = parseJson getData(customerId)
+      let data = parseJson testUpdateCart.getData(customerId)
       waitFor ws.sendText $data
       return
 

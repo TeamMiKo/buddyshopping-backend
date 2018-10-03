@@ -37,7 +37,12 @@ func multicart(session: Session): JsonNode =
   result = newJArray()
   for cart in session.values:
     result.add %*{
-      "owner": {"id": cart.owner.id, "name": cart.owner.name},
+      "owner": {
+        "id": cart.owner.id,
+        "name": cart.owner.name,
+        "isHost": cart.owner.isHost,
+        "isReadyToCheckout": cart.owner.isReadyToCheckout
+      },
       "content": cart.content
     }
 
@@ -120,7 +125,11 @@ proc main() =
             state[sessionId][customerId].content = payload["cartContent"]
 
           of "customerReadyToCheckout":
-            discard
+            let
+              customerId = getStr(payload["customerId"])
+              customerReadyToCheckout = getBool(payload["customerReadyToCheckout"])
+
+            state[sessionId][customerId].owner.isReadyToCheckout = customerReadyToCheckout
 
           else: discard
 
