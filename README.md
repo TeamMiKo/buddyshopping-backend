@@ -64,7 +64,7 @@ In exchange for the data above, the server generates a unique customer ID and se
 
 ```json
 {
-  "event": startSession,
+  "event": "startSession",
   "payload": {
     "customerId": "1234567qwe0000001"
   }
