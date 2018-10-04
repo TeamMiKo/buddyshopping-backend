@@ -1,12 +1,12 @@
-# Real-Time Collab Shopping and Split the Bill by Shop with Friends
+# Real-Time Collab Shopping and Split the Bill by BuddyShopping
 
-_Shop with Friends_ is an Ecwid app that helps customers shop together in real time.
+_BuddyShopping_ is an Ecwid app that helps customers shop together in real time.
 
 Say, you're planning a party. You like pizza, Alice likes Chinese, and Ali is all about shawarma. There's an online shop that has all the required foods and offers delivery, but since you're not in the same room, you can't just sit together and pick the food. Also, there's a hundred varieties of pizza, Chinese food, and shawarmas, so just playing with the options and making the order for three will take a lot of time.
 
 What do you do? How do you let three people order their own stuff and have it all in the same shopping cart, split by person, so that you could split the bill afterward?
 
-Luckily, there's _Shop with Friends_ app for Ecwid. If it's installed, any customer can share their shopping session with friends, letting them contribute to a shared shopping cart and helping the host split the bill.
+Luckily, there's _BuddyShopping_ app for Ecwid. If it's installed, any customer can share their shopping session with friends, letting them contribute to a shared shopping cart and helping the host split the bill.
 
 Back to the party, here's what you do:
 
