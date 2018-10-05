@@ -19,7 +19,7 @@ type
   State* = Table[string, Session]
 
 
-proc newCustomer*(name: string, ws: AsyncWebSocket, isHost=false): Customer =
+proc initCustomer*(name: string, ws: AsyncWebSocket, isHost=false): Customer =
   ## Create a ``Customer`` instance. ``id`` is an oid.
 
   result.id = $genOid()
@@ -27,16 +27,16 @@ proc newCustomer*(name: string, ws: AsyncWebSocket, isHost=false): Customer =
   result.ws = ws
   result.isHost = isHost
 
-func newCart*(owner: Customer): Cart =
+func initCart*(owner: Customer): Cart =
   ## Create a ``Cart`` instance with the given owner. Default content is an empty JSON object.
 
   result.owner = owner
   result.content = newJObject()
 
-func newSession*(): Session = initTable[string, Cart]()
+func initSession*(): Session = initTable[string, Cart]()
   ## Create a session as an empty table of strings to `Cart <#Cart>`__\ s.
 
-func newState*(): State = initTable[string, Session]()
+func initState*(): State = initTable[string, Session]()
   ## Create a state as an empty table of strings to `Session <#Session>`__\ s.
 
 func multicart*(session: Session): JsonNode =
@@ -63,23 +63,23 @@ proc broadcast*(session: Session, message: string) {.async.} =
 proc cleanup*(state: var State) =
   ## Remove disconnected websockets from sessions and empty sessions from the state.
 
-  var newState = newState()
+  var initState = initState()
 
   for sessionId, session in state:
-    var newSession = newSession()
+    var initSession = initSession()
 
     for ownerId, cart in session:
       if not cart.owner.ws.sock.isClosed:
-        newSession[ownerId] = cart
+        initSession[ownerId] = cart
 
-    if len(newSession) > 0:
-      newState[sessionId] = newSession
+    if len(initSession) > 0:
+      initState[sessionId] = initSession
 
-  state = newState
+  state = initState
 
 
 proc main() =
-  var state = newState()
+  var state = initState()
 
   echo "Server is ready"
 
@@ -117,17 +117,17 @@ proc main() =
 
           case event
           of "startSession":
-            let customer = newCustomer(getStr(payload["customerName"]), ws, isHost=true)
+            let customer = initCustomer(getStr(payload["customerName"]), ws, isHost=true)
 
-            state[sessionId] = newSession()
-            state[sessionId][customer.id] = newCart(customer)
+            state[sessionId] = initSession()
+            state[sessionId][customer.id] = initCart(customer)
 
             await customer.ws.sendText $(%*{"event": event, "payload": {"customerId": customer.id}})
 
           of "joinSession":
-            let customer = newCustomer(getStr(payload["customerName"]), ws)
+            let customer = initCustomer(getStr(payload["customerName"]), ws)
 
-            state[sessionId][customer.id] = newCart(customer)
+            state[sessionId][customer.id] = initCart(customer)
 
             await customer.ws.sendText $(%*{"event": event, "payload": {"customerId": customer.id}})
 
