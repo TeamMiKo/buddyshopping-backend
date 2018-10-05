@@ -12,27 +12,15 @@ Back to the party, here's what you do:
 
 1.  Click “Shop with friends” button:
 
-SCREENSHOT
-
 2.  Click “Copy invitation link”:
-
-SCREENSHOT
 
 3.  Send it to your friends:
 
-SCREENSHOT
-
 4.  Shop! Add items to cart like you normally do and see others do the same:
-
-SCREENSHOT
 
 5.  When your friend is finished with their order, they click “Ready to checkout.” When all your friends have done so, click “Proceed to checkout”:
 
-SCREENSHOT
-
 6.  Pay for the order as usual. If you want to split the bill, click “Split the bill” button and download the order slip:
-
-SCREENSHOT
 
 
 ## Developer Guide
