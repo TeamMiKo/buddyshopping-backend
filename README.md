@@ -27,6 +27,8 @@ Back to the party, here's what you do:
 
 The app consists of the client and the server. The client is a JS app running on the Ecwid storefront. The server is a Nim app running in the cloud.
 
+This repo is the home of the server.
+
 
 ## Build Instructions
 
