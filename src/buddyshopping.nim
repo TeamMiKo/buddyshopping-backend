@@ -1,39 +1,47 @@
-import os, strutils, strformat, json, sequtils, sugar, oids, tables
-import websocket, asynchttpserver, asyncnet, asyncdispatch
+import os, strutils, json, sequtils, tables, times, oids
+import asynchttpserver, asyncnet, asyncdispatch, websocket
 
 
 type
-  Customer = object
+  Customer* = object
     id: string
     name: string
     ws: AsyncWebSocket
     isHost: bool
     isReadyToCheckout: bool
 
-  Cart = object
+  Cart* = object
     owner: Customer
     content: JsonNode
 
-  Session = Table[string, Cart]
+  Session* = Table[string, Cart]
 
-  State = Table[string, Session]
+  State* = Table[string, Session]
 
 
-proc newCustomer(name: string, ws: AsyncWebSocket, isHost=false): Customer =
+proc newCustomer*(name: string, ws: AsyncWebSocket, isHost=false): Customer =
+  ## Create a ``Customer`` instance. ``id`` is an oid.
+
   result.id = $genOid()
   result.name = name
   result.ws = ws
   result.isHost = isHost
 
-func newCart(owner: Customer): Cart =
+func newCart*(owner: Customer): Cart =
+  ## Create a ``Cart`` instance with the given owner. Default content is an empty JSON object.
+
   result.owner = owner
   result.content = newJObject()
 
-func newSession(): Session = initTable[string, Cart]()
+func newSession*(): Session = initTable[string, Cart]()
+  ## Create a session as an empty table of strings to `Cart <#Cart>`__\ s.
 
-func newState(): State = initTable[string, Session]()
+func newState*(): State = initTable[string, Session]()
+  ## Create a state as an empty table of strings to `Session <#Session>`__\ s.
 
-func multicart(session: Session): JsonNode =
+func multicart*(session: Session): JsonNode =
+  ## Generate *multicart*, which is  an entire session's state in JSON form.
+
   result = newJArray()
   for cart in session.values:
     result.add %*{
@@ -46,11 +54,15 @@ func multicart(session: Session): JsonNode =
       "content": cart.content
     }
 
-proc broadcast(session: Session, message: string) {.async.} =
+proc broadcast*(session: Session, message: string) {.async.} =
+  ## Send ``message`` to all customers in ``session``.
+
   for cart in session.values:
     await cart.owner.ws.sendText message
 
-proc cleanup(state: var State) =
+proc cleanup*(state: var State) =
+  ## Remove disconnected websockets from sessions and empty sessions from the state.
+
   var newState = newState()
 
   for sessionId, session in state:
@@ -82,7 +94,7 @@ proc main() =
         request.client.close()
         return
 
-      echo &"Client connected to session {sessionId}"
+      echo "Client connected to session $#" % sessionId
 
       while true:
         let (opcode, data) =
@@ -94,7 +106,7 @@ proc main() =
         case opcode
         of Opcode.Close:
           asyncCheck ws.close()
-          echo &"Connection to session {sessionId} closed"
+          echo "Connection to session $# closed" % sessionId
           break
 
         of Opcode.Text:
@@ -148,7 +160,7 @@ proc main() =
 
     except: discard
 
-  waitFor newAsyncHttpServer().serve(Port 8841, cb)
+  waitFor newAsyncHttpServer().serve(Port 8080, cb)
 
 when isMainModule:
   main()

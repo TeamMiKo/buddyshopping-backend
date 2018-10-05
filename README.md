@@ -191,3 +191,8 @@ After any of the messages above is processed by the server, the server broadcast
 Multicart is an object that holds the state of all carts participating in the session.
 
 `content` key points to a Cart Object from Ecwid's API.
+
+
+## API Docs
+
+[Generated docs →](src/buddyshopping.html)

@@ -1,6 +1,0 @@
-{
-  "event": "startSession",
-  "payload": {
-    "customerName": "John"
-  }
-}

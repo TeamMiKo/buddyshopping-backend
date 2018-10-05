@@ -5,5 +5,5 @@ COPY . /usr/app
 RUN nimble install -y
 
 FROM alpine
-COPY --from=base /usr/app/multicart_backend /bin/multicart_backend
-CMD ["/bin/multicart_backend"]
+COPY --from=base /usr/app/buddyshopping /bin/buddyshopping
+CMD ["/bin/buddyshopping"]
