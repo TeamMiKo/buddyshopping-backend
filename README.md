@@ -39,9 +39,19 @@ SCREENSHOT
 
 The app consists of the client and the server. The client is a JS app running on the Ecwid storefront. The server is a Nim app running in the cloud.
 
-The client and the server communicate by exchanging messages in serialized JSON over WebSocket. The supported message types are listed below.
+
+## Build Instructions
+
+- Build in release mode: `nimble install` or `docker build -t buddyshopping-backend .`
+- Build in development mode: `nimble build`
+- Run tests: `nimble test`
+- Run generate [API docs](src/buddyshopping.html): `nimble docs`
+
 
 ## Messages
+
+The client and the server communicate by exchanging messages in serialized JSON over WebSocket. The supported message types are listed below.
+
 
 ### startSession
 
@@ -128,6 +138,7 @@ The object at `cartContent` key is an Ecwid's [Cart Object](https://developers.e
 
 `customerId` is the unique ID the client received after starting or joining the session.
 
+
 ### customerReadyToCheckout
 
 When a customer is ready to checkout, their client sends the following message:
@@ -155,6 +166,7 @@ If the customer cancels the their ready state, the same message but with `false`
 ```
 
 The client should not allow the host to toggle ready to checkout state before all guests have set theirs to `true`.
+
 
 ### multicartUpdate
 
@@ -191,8 +203,3 @@ After any of the messages above is processed by the server, the server broadcast
 Multicart is an object that holds the state of all carts participating in the session.
 
 `content` key points to a Cart Object from Ecwid's API.
-
-
-## API Docs
-
-[Generated docs →](src/buddyshopping.html)
