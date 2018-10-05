@@ -103,7 +103,7 @@ In exchange, the server generates a unique customer ID and sends it to the clien
 
 ```json
 {
-  "event": joinSession,
+  "event": "joinSession",
   "payload": {
     "customerId": "1234567asd0000002"
   }
