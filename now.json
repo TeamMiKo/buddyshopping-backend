@@ -1,5 +1,6 @@
 {
   "features": {
     "cloud": "v2"
-  }
+  },
+  "alias": "buddyshopping"
 }

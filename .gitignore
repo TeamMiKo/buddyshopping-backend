@@ -1,4 +1,4 @@
 nimcache
 *.exe
-multicart_backend
-testclient
+buddyshopping
+tests/testsession
