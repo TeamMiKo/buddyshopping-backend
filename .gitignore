@@ -1,3 +1,4 @@
 nimcache
 *.exe
 buddyshopping
+tests/testsession

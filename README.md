@@ -32,10 +32,51 @@ This repo is the home of the server.
 
 ## Build Instructions
 
-- Build in release mode: `nimble install` or `docker build -t buddyshopping-backend .`
-- Build in development mode: `nimble build`
-- Run tests: `nimble test`
-- Run generate [API docs](src/buddyshopping.html): `nimble docs`
+- Build in release mode:
+
+  ```shell
+  $ nimble install
+  ```
+
+  or
+
+  ```shell
+  $ docker build -t buddyshopping-backend .
+  ```
+
+- Build in development mode:
+
+  ```shell
+  $ nimble build
+  ```
+
+- Run tests:
+
+  - Build the app.
+
+  - Run the app:
+
+    ```shell
+    $ ./buddyshopping
+    ```
+
+  - Run in a separate tab:
+
+    ```shell
+    $ nimble test
+    ```
+
+- Generate [API docs](https://teammiko.github.io/buddyshopping-backend/buddyshopping.html):
+
+  ```shell
+  $ nimble docs
+  ```
+
+- Upload the docs to GitHub Pages (you need [ghp-import](https://github.com/davisp/ghp-import)):
+
+  ```shell
+  ghp-import -np src
+  ```
 
 
 ## Messages
