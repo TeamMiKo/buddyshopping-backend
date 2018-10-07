@@ -2,5 +2,8 @@
   "features": {
     "cloud": "v2"
   },
-  "alias": "buddyshopping"
+  "alias": "buddyshopping",
+  "env": {
+    "PROTOCOL": "@protocol"
+  }
 }
