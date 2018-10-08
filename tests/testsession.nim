@@ -1,19 +1,22 @@
-import json, oids, sugar
+import os, json, oids, sugar
 import asyncnet, asyncdispatch, websocket
 import unittest
 
 
 suite "Shared shopping session: Alice is the host, Bob is a guest":
-  let
-    sessionId = $genOid()
-    aliceWs = waitFor newAsyncWebsocketClient("localhost", Port 8080, "/" & sessionId,
-                                              protocols = @["86aa6d449d3de20132e08d77b909547d"])
-    bobWs = waitFor newAsyncWebsocketClient("localhost", Port 8080, "/" & sessionId,
-                                            protocols = @["86aa6d449d3de20132e08d77b909547d"])
+  const
+    host = "localhost"
+    port = Port 8080
 
   var
+    aliceWs: AsyncWebSocket
     aliceCustomerId: string
+    bobWs: AsyncWebSocket
     bobCustomerId: string
+
+  let
+    protocol = getEnv("PROTOCOL")
+    sessionId = $genOid()
 
   template checkBroadcast(): untyped {.dirty.} =
     let
@@ -30,8 +33,10 @@ suite "Shared shopping session: Alice is the host, Bob is a guest":
 
     check alicePayload["multicartContent"] == bobPayload["multicartContent"]
 
-
   test "Alice and Bob establish connection":
+    aliceWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[protocol])
+    bobWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[protocol])
+
     require(not aliceWs.sock.isClosed)
     require(not bobWs.sock.isClosed)
 
