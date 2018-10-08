@@ -19,7 +19,7 @@ type
   State* = Table[string, Session]
 
 
-proc initCustomer*(hashids: Hashids, name: string, ws: AsyncWebSocket, isHost=false): Customer =
+func initCustomer*(hashids: Hashids, name: string, ws: AsyncWebSocket, isHost=false): Customer =
   ## Create a ``Customer`` instance. ``id`` is a hashid created by the given ``Hashids`` instance from the customer's name.
 
   result.id = hashids.encodeHex(name.toHex)
