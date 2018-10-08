@@ -1,4 +1,4 @@
-import os, strutils, json, sequtils, tables, times, oids
+import os, strutils, json, sequtils, tables, times, hashids
 import asynchttpserver, asyncnet, asyncdispatch, websocket
 
 
@@ -19,10 +19,10 @@ type
   State* = Table[string, Session]
 
 
-proc initCustomer*(name: string, ws: AsyncWebSocket, isHost=false): Customer =
-  ## Create a ``Customer`` instance. ``id`` is an oid.
+proc initCustomer*(hashids: Hashids, name: string, ws: AsyncWebSocket, isHost=false): Customer =
+  ## Create a ``Customer`` instance. ``id`` is a hashid created by the given ``Hashids`` instance from the customer's name.
 
-  result.id = $genOid()
+  result.id = hashids.encodeHex(name.toHex)
   result.name = name
   result.ws = ws
   result.isHost = isHost
@@ -79,6 +79,7 @@ proc cleanup*(state: var State) =
 
 
 proc main() =
+  let protocol = getEnv("PROTOCOL")
   var state = initState()
 
   echo "Server is ready"
@@ -87,14 +88,15 @@ proc main() =
     try:
       let
         sessionId = request.url.path.strip(chars={'/'})
-        (ws, error) = await verifyWebsocketRequest(request, "86aa6d449d3de20132e08d77b909547d")
+        hashids = createHashids(sessionId)
+        (ws, error) = await verifyWebsocketRequest(request, protocol)
 
       if ws.isNil:
         await request.respond(Http400, error)
         request.client.close()
         return
 
-      echo "Client connected to session $#" % sessionId
+      echo "Client connected to session " & sessionId
 
       while true:
         let (opcode, data) =
@@ -117,7 +119,7 @@ proc main() =
 
           case event
           of "startSession":
-            let customer = initCustomer(getStr(payload["customerName"]), ws, isHost=true)
+            let customer = hashids.initCustomer(getStr(payload["customerName"]), ws, isHost=true)
 
             state[sessionId] = initSession()
             state[sessionId][customer.id] = initCart(customer)
@@ -125,7 +127,7 @@ proc main() =
             await customer.ws.sendText $(%*{"event": event, "payload": {"customerId": customer.id}})
 
           of "joinSession":
-            let customer = initCustomer(getStr(payload["customerName"]), ws)
+            let customer = hashids.initCustomer(getStr(payload["customerName"]), ws)
 
             state[sessionId][customer.id] = initCart(customer)
 
