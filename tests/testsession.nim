@@ -1,15 +1,16 @@
-import json, oids, sugar
+import os, json, oids, sugar
 import asyncnet, asyncdispatch, websocket
 import unittest
 
 
 suite "Shared shopping session: Alice is the host, Bob is a guest":
   let
+    protocol = getEnv("PROTOCOL")
     sessionId = $genOid()
     aliceWs = waitFor newAsyncWebsocketClient("localhost", Port 8080, "/" & sessionId,
-                                              protocols = @["86aa6d449d3de20132e08d77b909547d"])
+                                              protocols = @[protocol])
     bobWs = waitFor newAsyncWebsocketClient("localhost", Port 8080, "/" & sessionId,
-                                            protocols = @["86aa6d449d3de20132e08d77b909547d"])
+                                            protocols = @[protocol])
 
   var
     aliceCustomerId: string
