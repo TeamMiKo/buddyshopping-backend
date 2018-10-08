@@ -82,10 +82,15 @@ proc cleanup*(state: var State) =
 
 
 proc main() =
-  let protocol = getEnv("PROTOCOL")
+  let
+    protocol = getEnv("PROTOCOL")
+    consoleLogger = newConsoleLogger(when defined(release): lvlInfo else: lvlAll)
+
   var state = initState()
 
-  echo "Server is ready"
+  addHandler(consoleLogger)
+
+  info "Server is ready"
 
   proc requestHandler(request: Request) {.async.} =
     try:
@@ -99,19 +104,20 @@ proc main() =
         request.client.close()
         return
 
-      echo "Client connected to session " & sessionId
+      info "Client connected to session ", sessionId
 
       while true:
         let (opcode, data) =
           try:
             await ws.readData()
           except:
+            debug "Lost connection to session ", sessionId
             (Opcode.Close, "")
 
         case opcode
         of Opcode.Close:
           asyncCheck ws.close()
-          echo "Connection to session $# closed" % sessionId
+          info "Closed connection to session ", sessionId
           break
 
         of Opcode.Text:
@@ -148,7 +154,8 @@ proc main() =
 
             state[sessionId][customerId].owner.isReadyToCheckout = customerReadyToCheckout
 
-          else: discard
+          else:
+            warn "Invalid event: ", event
 
           state.cleanup()
 
@@ -161,9 +168,11 @@ proc main() =
 
           await state[sessionId].broadcast($multicartPayload)
 
-        else: discard
+        else:
+          warn "Invalid opcode: ", opcode
 
-    except: discard
+    except:
+      error getCurrentExceptionMsg()
 
   waitFor newAsyncHttpServer().serve(Port 8080, requestHandler)
 
