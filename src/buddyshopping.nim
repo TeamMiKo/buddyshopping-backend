@@ -1,3 +1,5 @@
+## WebSocket server for BuddyShopping Ecwid app.
+
 import os, sequtils, strutils, logging
 import tables, json
 import oids
