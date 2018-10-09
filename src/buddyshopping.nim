@@ -117,7 +117,7 @@ proc main() =
 
         case opcode
         of Opcode.Close:
-          asyncCheck ws.close()
+          await ws.close()
           info "Closed connection to session ", sessionId
           break
 
