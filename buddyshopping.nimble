@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.0.3"
+version       = "1.0.4"
 author        = "Konstantin Molchanov"
 description   = "BuddyShopping backend."
 license       = "MIT"
