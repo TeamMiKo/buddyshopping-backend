@@ -1,3 +1,8 @@
+# 1.0.3
+
+- Fix fatal issue on Linux when the server would crash on websocket close.
+
+
 # 1.0.2
 
 - Switch back to oids, because hashids requires pcre, and that's too much than I want to drag into  deployment.
