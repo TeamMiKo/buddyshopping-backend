@@ -1,3 +1,8 @@
+# 1.0.4
+
+- Fail server if `PROTOCOL` env var is unset.
+
+
 # 1.0.3
 
 - Fix fatal issue on Linux when the server would crash on websocket close.
