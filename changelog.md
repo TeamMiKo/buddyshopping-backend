@@ -1,3 +1,8 @@
+# 1.0.2
+
+- Switch back to oids, because hashids requires pcre, and that's too much than I want to drag into  deployment.
+
+
 # 1.0.1
 
 - Switch from oids to hashids for customer IDs.

@@ -1,5 +1,10 @@
-import os, strutils, json, sequtils, tables, times, hashids
-import asynchttpserver, asyncnet, asyncdispatch, websocket
+## WebSocket server for BuddyShopping Ecwid app.
+
+import os, sequtils, strutils, logging
+import tables, json
+import oids
+import asynchttpserver, asyncnet, asyncdispatch
+import websocket
 
 
 type
@@ -19,10 +24,10 @@ type
   State* = Table[string, Session]
 
 
-proc initCustomer*(hashids: Hashids, name: string, ws: AsyncWebSocket, isHost=false): Customer =
-  ## Create a ``Customer`` instance. ``id`` is a hashid created by the given ``Hashids`` instance from the customer's name.
+proc initCustomer*(name: string, ws: AsyncWebSocket, isHost=false): Customer =
+  ## Create a ``Customer`` instance. ``id`` is an oid.
 
-  result.id = hashids.encodeHex(name.toHex)
+  result.id = $genOid()
   result.name = name
   result.ws = ws
   result.isHost = isHost
@@ -34,25 +39,25 @@ func initCart*(owner: Customer): Cart =
   result.content = newJObject()
 
 func initSession*(): Session = initTable[string, Cart]()
-  ## Create a session as an empty table of strings to `Cart <#Cart>`__\ s.
+  ## Create a session as an empty table of strings to Carts.
 
 func initState*(): State = initTable[string, Session]()
-  ## Create a state as an empty table of strings to `Session <#Session>`__\ s.
+  ## Create a state as an empty table of strings to Sessions.
 
 func multicart*(session: Session): JsonNode =
-  ## Generate *multicart*, which is  an entire session's state in JSON form.
+  ## Generate multicart, which is  an entire session's state in JSON form.
 
   result = newJArray()
   for cart in session.values:
     result.add %*{
-      "owner": {
-        "id": cart.owner.id,
-        "name": cart.owner.name,
-        "isHost": cart.owner.isHost,
-        "isReadyToCheckout": cart.owner.isReadyToCheckout
-      },
-      "content": cart.content
-    }
+                    "owner": {
+                      "id": cart.owner.id,
+                      "name": cart.owner.name,
+                      "isHost": cart.owner.isHost,
+                      "isReadyToCheckout": cart.owner.isReadyToCheckout
+                    },
+                    "content": cart.content
+                  }
 
 proc broadcast*(session: Session, message: string) {.async.} =
   ## Send ``message`` to all customers in ``session``.
@@ -63,32 +68,36 @@ proc broadcast*(session: Session, message: string) {.async.} =
 proc cleanup*(state: var State) =
   ## Remove disconnected websockets from sessions and empty sessions from the state.
 
-  var initState = initState()
+  var newState = initState()
 
   for sessionId, session in state:
-    var initSession = initSession()
+    var newSession = initSession()
 
     for ownerId, cart in session:
       if not cart.owner.ws.sock.isClosed:
-        initSession[ownerId] = cart
+        newSession[ownerId] = cart
 
-    if len(initSession) > 0:
-      initState[sessionId] = initSession
+    if len(newSession) > 0:
+      newState[sessionId] = newSession
 
-  state = initState
+  state = newState
 
 
 proc main() =
-  let protocol = getEnv("PROTOCOL")
+  let
+    protocol = getEnv("PROTOCOL")
+    consoleLogger = newConsoleLogger(when defined(release): lvlInfo else: lvlAll)
+
   var state = initState()
 
-  echo "Server is ready"
+  addHandler(consoleLogger)
 
-  proc cb(request: Request) {.async.} =
+  info "Server is ready"
+
+  proc requestHandler(request: Request) {.async.} =
     try:
       let
         sessionId = request.url.path.strip(chars={'/'})
-        hashids = createHashids(sessionId)
         (ws, error) = await verifyWebsocketRequest(request, protocol)
 
       if ws.isNil:
@@ -96,19 +105,20 @@ proc main() =
         request.client.close()
         return
 
-      echo "Client connected to session " & sessionId
+      info "Client connected to session ", sessionId
 
       while true:
         let (opcode, data) =
           try:
             await ws.readData()
           except:
+            debug "Lost connection to session ", sessionId
             (Opcode.Close, "")
 
         case opcode
         of Opcode.Close:
           asyncCheck ws.close()
-          echo "Connection to session $# closed" % sessionId
+          info "Closed connection to session ", sessionId
           break
 
         of Opcode.Text:
@@ -119,7 +129,7 @@ proc main() =
 
           case event
           of "startSession":
-            let customer = hashids.initCustomer(getStr(payload["customerName"]), ws, isHost=true)
+            let customer = initCustomer(getStr(payload["customerName"]), ws, isHost=true)
 
             state[sessionId] = initSession()
             state[sessionId][customer.id] = initCart(customer)
@@ -127,7 +137,7 @@ proc main() =
             await customer.ws.sendText $(%*{"event": event, "payload": {"customerId": customer.id}})
 
           of "joinSession":
-            let customer = hashids.initCustomer(getStr(payload["customerName"]), ws)
+            let customer = initCustomer(getStr(payload["customerName"]), ws)
 
             state[sessionId][customer.id] = initCart(customer)
 
@@ -145,7 +155,8 @@ proc main() =
 
             state[sessionId][customerId].owner.isReadyToCheckout = customerReadyToCheckout
 
-          else: discard
+          else:
+            warn "Invalid event: ", event
 
           state.cleanup()
 
@@ -158,11 +169,14 @@ proc main() =
 
           await state[sessionId].broadcast($multicartPayload)
 
-        else: discard
+        else:
+          warn "Invalid opcode: ", opcode
 
-    except: discard
+    except:
+      error getCurrentExceptionMsg()
 
-  waitFor newAsyncHttpServer().serve(Port 8080, cb)
+  waitFor newAsyncHttpServer().serve(Port 8080, requestHandler)
+
 
 when isMainModule:
   main()

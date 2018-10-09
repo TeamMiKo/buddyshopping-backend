@@ -1,4 +1,4 @@
-nimcache
 *.exe
+*.html
 buddyshopping
 tests/testsession
