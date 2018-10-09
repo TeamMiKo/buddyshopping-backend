@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.0.1"
+version       = "1.0.2"
 author        = "Konstantin Molchanov"
 description   = "BuddyShopping backend."
 license       = "MIT"
@@ -10,7 +10,7 @@ bin           = @["buddyshopping"]
 
 # Dependencies
 
-requires "nim >= 0.19.0", "websocket", "hashids"
+requires "nim >= 0.19.0", "websocket"
 
 task docs, "Generate and upload API docs":
   exec "nim doc src/buddyshopping.nim"
