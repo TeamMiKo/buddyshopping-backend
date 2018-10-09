@@ -88,6 +88,9 @@ proc main() =
     protocol = getEnv("PROTOCOL")
     consoleLogger = newConsoleLogger(when defined(release): lvlInfo else: lvlAll)
 
+  if len(protocol) == 0:
+    quit "PROTOCOL env var cannot be empty"
+
   var state = initState()
 
   addHandler(consoleLogger)
@@ -117,7 +120,7 @@ proc main() =
 
         case opcode
         of Opcode.Close:
-          asyncCheck ws.close()
+          await ws.close()
           info "Closed connection to session ", sessionId
           break
 
