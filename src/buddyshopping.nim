@@ -86,8 +86,6 @@ proc main() =
     protocol = getEnv("PROTOCOL")
     consoleLogger = newConsoleLogger(when defined(release): lvlInfo else: lvlAll)
 
-  echo "Protocol ", protocol
-
   var state = initState()
 
   addHandler(consoleLogger)
