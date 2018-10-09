@@ -1,6 +1,8 @@
+## WebSocket server for BuddyShopping Ecwid app.
+
 import os, sequtils, strutils, logging
 import tables, json
-import hashids
+import oids
 import asynchttpserver, asyncnet, asyncdispatch
 import websocket
 
@@ -22,10 +24,10 @@ type
   State* = Table[string, Session]
 
 
-func initCustomer*(hashids: Hashids, name: string, ws: AsyncWebSocket, isHost=false): Customer =
-  ## Create a ``Customer`` instance. ``id`` is a hashid created by the given ``Hashids`` instance from the customer's name.
+proc initCustomer*(name: string, ws: AsyncWebSocket, isHost=false): Customer =
+  ## Create a ``Customer`` instance. ``id`` is an oid.
 
-  result.id = hashids.encodeHex(name.toHex)
+  result.id = $genOid()
   result.name = name
   result.ws = ws
   result.isHost = isHost
@@ -96,7 +98,6 @@ proc main() =
     try:
       let
         sessionId = request.url.path.strip(chars={'/'})
-        hashids = createHashids(sessionId)
         (ws, error) = await verifyWebsocketRequest(request, protocol)
 
       if ws.isNil:
@@ -128,7 +129,7 @@ proc main() =
 
           case event
           of "startSession":
-            let customer = hashids.initCustomer(getStr(payload["customerName"]), ws, isHost=true)
+            let customer = initCustomer(getStr(payload["customerName"]), ws, isHost=true)
 
             state[sessionId] = initSession()
             state[sessionId][customer.id] = initCart(customer)
@@ -136,7 +137,7 @@ proc main() =
             await customer.ws.sendText $(%*{"event": event, "payload": {"customerId": customer.id}})
 
           of "joinSession":
-            let customer = hashids.initCustomer(getStr(payload["customerName"]), ws)
+            let customer = initCustomer(getStr(payload["customerName"]), ws)
 
             state[sessionId][customer.id] = initCart(customer)
 
