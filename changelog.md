@@ -1,6 +1,7 @@
 # 1.0.5
 
 - Read port number from cmd param.
+- Hide session IDs from the public logs.
 
 
 # 1.0.4
