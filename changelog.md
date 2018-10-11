@@ -1,3 +1,7 @@
+# 1.0.5
+
+- Read port number from cmd param.
+
 # 1.0.4
 
 - Fail server if `PROTOCOL` env var is unset.
