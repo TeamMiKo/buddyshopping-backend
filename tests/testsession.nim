@@ -33,6 +33,13 @@ suite "Shared shopping session: Alice is the host, Bob is a guest":
 
     check alicePayload["multicartContent"] == bobPayload["multicartContent"]
 
+  test "Connection with invalid protocol":
+    expect ProtocolError:
+      aliceWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[""])
+
+    expect ProtocolError:
+      bobWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[""])
+
   test "Alice and Bob establish connection":
     aliceWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[protocol])
     bobWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[protocol])
