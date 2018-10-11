@@ -86,7 +86,8 @@ proc cleanup*(state: var State) =
 proc main() =
   let
     protocol = getEnv("PROTOCOL")
-    consoleLogger = newConsoleLogger(when defined(release): lvlInfo else: lvlAll)
+    portNumber = if paramCount() > 0: parseInt(paramStr(1)) else: 8080
+    consoleLogger = newConsoleLogger(when defined(release): lvlNotice else: lvlAll)
 
   if len(protocol) == 0:
     quit "PROTOCOL env var cannot be empty"
@@ -95,7 +96,7 @@ proc main() =
 
   addHandler(consoleLogger)
 
-  info "Server is ready"
+  notice "Server is listening on port " & $portNumber
 
   proc requestHandler(request: Request) {.async.} =
     try:
@@ -178,7 +179,7 @@ proc main() =
     except:
       error getCurrentExceptionMsg()
 
-  waitFor newAsyncHttpServer().serve(Port 8080, requestHandler)
+  waitFor newAsyncHttpServer().serve(Port portNumber, requestHandler)
 
 
 when isMainModule:
