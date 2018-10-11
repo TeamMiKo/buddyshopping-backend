@@ -37,8 +37,8 @@ suite "Shared shopping session: Alice is the host, Bob is a guest":
     aliceWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[protocol])
     bobWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[protocol])
 
-    require(not aliceWs.sock.isClosed)
-    require(not bobWs.sock.isClosed)
+    require(not aliceWs.isNil)
+    require(not bobWs.isNil)
 
   test "Alice starts session":
     let startSessionData = %*{
