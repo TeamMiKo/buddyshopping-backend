@@ -2,6 +2,7 @@
 
 - Read port number from cmd param.
 - Hide session IDs from the public logs.
+- Add test for connection with invalid protocol.
 
 
 # 1.0.4
