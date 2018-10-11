@@ -33,12 +33,19 @@ suite "Shared shopping session: Alice is the host, Bob is a guest":
 
     check alicePayload["multicartContent"] == bobPayload["multicartContent"]
 
+  test "Connection with invalid protocol":
+    expect ProtocolError:
+      aliceWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[""])
+
+    expect ProtocolError:
+      bobWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[""])
+
   test "Alice and Bob establish connection":
     aliceWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[protocol])
     bobWs = waitFor newAsyncWebsocketClient(host, port, "/" & sessionId, protocols = @[protocol])
 
-    require(not aliceWs.sock.isClosed)
-    require(not bobWs.sock.isClosed)
+    require(not aliceWs.isNil)
+    require(not bobWs.isNil)
 
   test "Alice starts session":
     let startSessionData = %*{
