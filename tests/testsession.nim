@@ -66,7 +66,7 @@ suite "Shared shopping session: Alice is the host, Bob is a guest":
 
     aliceCustomerId = getStr(payload["customerId"])
 
-  test "Multicart update is sent to Alice after she start session":
+  test "Multicart update is sent to Alice after she started session":
     let
       (opcode, data) = waitFor aliceWs.readData()
       payload = parseJson(data)["payload"]
